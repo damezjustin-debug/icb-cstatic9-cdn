@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "pub/sitemap.xml",
+      "source": "/pub/sitemap.xml",
       "headers": [
         {
           "key": "Cache-Control",
