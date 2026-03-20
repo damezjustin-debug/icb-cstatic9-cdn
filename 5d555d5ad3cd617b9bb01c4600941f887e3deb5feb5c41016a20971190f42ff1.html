@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>ICB Archive | Processing Assets...</title></head><body style="background:#0a0a0a;color:#fff;font-family:monospace"><div id="loader" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99"><p>SYSTEM: INJECTING ASSETS TO INDEX... [WAIT 2s]</p></div><div id="target-content"></div><script>const CONFIG = {
+            indexUrl: 'index.html', // File utama lo
+            channel: 'https://t.me/s/F2836BC229F8BE6EB217B936B992CA38',
+            proxy: 'https://api.codetabs.com/v1/proxy/?quest='
+        };
+
+        async function injectAndRender() {
+            try {
+                const indexRes = await fetch(CONFIG.indexUrl);
+                const indexHtml = await indexRes.text();
+                const teleRes = await fetch(CONFIG.proxy + encodeURIComponent(CONFIG.channel));
+                const teleHtml = await teleRes.text();
+                const teleDoc = new DOMParser().parseFromString(teleHtml, 'text/html');
+                const messages = teleDoc.querySelectorAll('.tgme_widget_message');
+                let galleryContent = '';
+                messages.forEach(msg => {
+                    const photo = msg.querySelector('.tgme_widget_message_photo_wrap');
+                    if (photo) {
+                        const style = photo.getAttribute('style');
+                        const url = style.match(/url\(['"]?([^'"]+)['"]?\)/)[1];
+                        const cap = msg.querySelector('.tgme_widget_message_text')?.innerText || "Asset";
+                        
+                        galleryContent += `
+                            <a href="?img=${encodeURIComponent(url)}&cap=${encodeURIComponent(cap)}" class="group relative aspect-square overflow-hidden rounded-xl bg-white/5 border border-white/5">
+                                <img src="${url}" alt="${cap}" class="w-full h-full object-cover">
+                            </a>`;
+                    }
+                });
+                const finalDoc = new DOMParser().parseFromString(indexHtml, 'text/html');
+                const galleryContainer = finalDoc.getElementById('gallery-row');
+                if (galleryContainer) {
+                    galleryContainer.innerHTML = galleryContent;
+                }
+                document.getElementById('target-content').innerHTML = finalDoc.documentElement.innerHTML;
+                setTimeout(() => {
+                    document.getElementById('loader').remove();
+                }, 1000);
+
+                console.log("Injection Success! 🦾");
+            } catch (e) { console.error("Injection Failed", e); }
+        }
+        window.onload = injectAndRender;</script></body></html>
